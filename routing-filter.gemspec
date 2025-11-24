@@ -1,7 +1,7 @@
 $:.unshift File.expand_path('../lib', __FILE__)
 require 'routing_filter/version'
 
-rails_version = ['>= 6.1']
+rails_version = ['>= 8.1', '< 9.0']
 
 Gem::Specification.new do |s|
   s.name         = "routing-filter"
@@ -18,12 +18,12 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.required_ruby_version = '>= 2.0'
 
-  s.add_dependency 'actionpack', rails_version
-  s.add_dependency 'activesupport', rails_version
+  s.add_dependency 'actionpack', *rails_version
+  s.add_dependency 'activesupport', *rails_version
 
   s.add_development_dependency 'i18n'
   s.add_development_dependency 'test_declarative'
   s.add_development_dependency 'rack-test', '~> 0.6.2'
-  s.add_development_dependency 'rails', rails_version
-  s.add_development_dependency 'minitest', '< 5.10.2'
+  s.add_development_dependency 'rails', *rails_version
+  s.add_development_dependency 'minitest'
 end

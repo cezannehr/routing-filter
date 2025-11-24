@@ -1,24 +1,25 @@
 module ActionDispatchJourneyRouterWithFiltering
-  def find_routes(env)
-    path = env.is_a?(Hash) ? env['PATH_INFO'] : env.path_info
+  # NOTE: `find_routes` was inlined as `recognize` in Rails 8.1+
+  def recognize(req, &block)
+    path = req.path_info
+
+    if @routes.respond_to?(:filters) && @routes.filters&.excluded?(path)
+      return super(req, &block)
+    end
+
     filter_parameters = {}
     original_path = path.dup
 
-    @routes.filters.run(:around_recognize, path, env) do
+    @routes.filters.run(:around_recognize, path, req.env) do
       filter_parameters
     end
 
-    super(env).map do |match, parameters, route|
-      [ match, parameters.merge(filter_parameters), route ]
-    end.tap do |match, parameters, route|
-      # restore the original path
-      if env.is_a?(Hash)
-        env['PATH_INFO'] = original_path
-      else
-        env.path_info = original_path
-      end
+    super(req) do |route, parameters|
+      params = (parameters || {}).merge(filter_parameters)
+      req.path_info = original_path
+      yield [route, params]
     end
   end
 end
 
-ActionDispatch::Journey::Router.send(:prepend, ActionDispatchJourneyRouterWithFiltering)
+ActionDispatch::Journey::Router.prepend(ActionDispatchJourneyRouterWithFiltering)

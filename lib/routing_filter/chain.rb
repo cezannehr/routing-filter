@@ -18,5 +18,24 @@ module RoutingFilter
     def active?
       RoutingFilter.active? && !empty?
     end
+
+    def excluded?(path)
+      any? do |filter|
+        if filter.respond_to?(:exclude) && filter.exclude
+          case filter.exclude
+          when Regexp
+            path =~ filter.exclude
+          when Proc
+            filter.exclude.call(path)
+          else
+            false
+          end
+        elsif filter.respond_to?(:excluded?, true)
+          filter.excluded?(path)
+        else
+          false
+        end
+      end
+    end
   end
 end
