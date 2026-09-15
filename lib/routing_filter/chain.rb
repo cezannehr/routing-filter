@@ -31,7 +31,7 @@ module RoutingFilter
             false
           end
         elsif filter.respond_to?(:excluded?, true)
-          filter.excluded?(path)
+          filter.send(:excluded?, path)
         else
           false
         end
