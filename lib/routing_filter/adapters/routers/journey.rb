@@ -14,11 +14,16 @@ module ActionDispatchJourneyRouterWithFiltering
       filter_parameters
     end
 
-    super(req) do |route, parameters|
+    # Rails 8.1 rewrites path_info to the mount-relative path before yielding a
+    # non-anchored (mounted) route; restoring it there would hand the engine the full path.
+    result = super(req) do |route, parameters|
       params = (parameters || {}).merge(filter_parameters)
-      req.path_info = original_path
+      req.path_info = original_path if route.path.anchored
       yield [route, params]
     end
+
+    req.path_info = original_path
+    result
   end
 end
 

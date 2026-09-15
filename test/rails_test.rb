@@ -82,6 +82,18 @@ class RailsTest < Minitest::Test
     assert_equal "/en/#{uuid}/foo/1.html", params[:url]
   end
 
+  test "mounted app receives the mount-relative PATH_INFO" do
+    get '/engine/foo/bar'
+    assert_equal 200, response.status
+    assert_equal '/engine|/foo/bar', response.body
+  end
+
+  test "mounted app receives the mount-relative PATH_INFO when a locale is stripped" do
+    get '/de/engine/foo/bar'
+    assert_equal 200, response.status
+    assert_equal '/engine|/foo/bar', response.body
+  end
+
   test "check request object" do
     get "/de/foo/1"
     assert_equal "/de/foo/1", last_request.path
